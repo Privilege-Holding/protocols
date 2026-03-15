@@ -246,7 +246,17 @@
 </style>
 </head>
 <body>
-<div class="container">
+<div id="auth-gate" style="display:flex;align-items:center;justify-content:center;min-height:100vh;position:fixed;inset:0;z-index:9999;background:var(--bg);">
+  <div style="background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);border-radius:var(--radius);padding:32px 28px;max-width:340px;width:90%;text-align:center;box-shadow:0 4px 32px var(--glass-shadow);">
+    <div style="font-size:28px;margin-bottom:12px;">🔒</div>
+    <div style="font-size:15px;font-weight:600;margin-bottom:4px;">Доступ ограничен</div>
+    <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:20px;">Введите код доступа</div>
+    <input id="auth-input" type="password" placeholder="Код" style="width:100%;padding:10px 14px;border:1px solid rgba(79,124,255,0.2);border-radius:10px;font-family:inherit;font-size:14px;text-align:center;outline:none;background:white;transition:border-color 0.2s;" onkeydown="if(event.key==='Enter')checkAuth()">
+    <button onclick="checkAuth()" style="width:100%;margin-top:10px;padding:10px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">Войти</button>
+    <div id="auth-error" style="color:#e55;font-size:12px;margin-top:10px;display:none;">Неверный код</div>
+  </div>
+</div>
+<div class="container" style="display:none;" id="main-content">
   <div class="header">
     <div class="header-label">Менторство · Лекция №1</div>
     <h1>LifeOS — Введение в методологии: внимание, mind-менеджмент, гусеница познания</h1>
@@ -346,6 +356,28 @@
   <div class="footer">LifeOS · Менторство для команды Privilegija · Протокол на основе транскрипции</div>
 </div>
 <script>
+  async function hashCode(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  async function checkAuth() {
+    const input = document.getElementById('auth-input').value;
+    const hash = await hashCode(input);
+    if (hash === 'f2f89ede8e7d4b3d2243dea1ca96b8ece56f793811d9708b4a0181bf81a50011') {
+      document.getElementById('auth-gate').style.display = 'none';
+      document.getElementById('main-content').style.display = 'block';
+      sessionStorage.setItem('authed', '1');
+    } else {
+      document.getElementById('auth-error').style.display = 'block';
+      document.getElementById('auth-input').style.borderColor = '#e55';
+    }
+  }
+  if (sessionStorage.getItem('authed') === '1') {
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+  } else {
+    document.getElementById('auth-input').focus();
+  }
   function toggleParticipants(btn) { const e = btn.getAttribute('aria-expanded') === 'true'; btn.setAttribute('aria-expanded', !e); btn.nextElementSibling.classList.toggle('open', !e); }
   function toggleSection(btn) { const e = btn.getAttribute('aria-expanded') === 'true'; btn.setAttribute('aria-expanded', !e); btn.nextElementSibling.classList.toggle('open', !e); }
   function toggleItem(btn) { const e = btn.getAttribute('aria-expanded') === 'true'; btn.setAttribute('aria-expanded', !e); btn.nextElementSibling.classList.toggle('open', !e); }
