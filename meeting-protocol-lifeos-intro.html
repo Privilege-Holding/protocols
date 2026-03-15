@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Протокол менторства — LifeOS. Введение — 15.03.2025</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2f9;
+    --glass-bg: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.85);
+    --glass-shadow: rgba(100, 120, 180, 0.08);
+    --glass-hover: rgba(255, 255, 255, 0.88);
+    --text-primary: #1a2138;
+    --text-secondary: #4a5578;
+    --text-muted: #8892ab;
+    --accent: #4f7cff;
+    --accent-light: #e8eeff;
+    --accent-dim: rgba(79, 124, 255, 0.1);
+    --warn: #f5944e;
+    --warn-light: #fff3e8;
+    --success: #2dba8e;
+    --success-light: #e5f8f2;
+    --idea: #a87bff;
+    --idea-light: #f2ecff;
+    --mind: #e85d9c;
+    --mind-light: #fde8f2;
+    --radius: 16px;
+    --radius-sm: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: '';
+    position: fixed; top: -30%; left: -20%;
+    width: 70vw; height: 70vw;
+    background: radial-gradient(circle, rgba(79,124,255,0.12) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed; bottom: -25%; right: -15%;
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, rgba(168,123,255,0.1) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  .container {
+    position: relative; z-index: 1;
+    max-width: 720px; margin: 0 auto;
+    padding: 16px 12px 48px;
+  }
+  .header {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 20px 16px; margin-bottom: 12px;
+    position: relative;
+    box-shadow: 0 2px 24px var(--glass-shadow), 0 0 0 1px rgba(255,255,255,0.5) inset;
+  }
+  .header::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--idea), var(--mind));
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 19px; font-weight: 700;
+    line-height: 1.3; margin-bottom: 16px; letter-spacing: -0.3px;
+  }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 10px; }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    background: var(--accent-light);
+    border: 1px solid rgba(79,124,255,0.12);
+    border-radius: 100px; padding: 5px 14px;
+  }
+  .meta-chip svg { width: 13px; height: 13px; opacity: 0.55; flex-shrink: 0; color: var(--accent); }
+  .participants-toggle {
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; background: none; border: none; padding: 0;
+    margin-top: 18px; color: var(--text-primary);
+    font-family: inherit; outline: none; -webkit-tap-highlight-color: transparent;
+    width: 100%; text-align: left;
+  }
+  .participants-toggle .p-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .participants-toggle .p-icon svg { width: 15px; height: 15px; color: var(--accent); }
+  .participants-toggle .p-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+  .participants-toggle .p-count {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+    color: var(--accent); background: var(--accent-light); border-radius: 6px; padding: 2px 8px;
+  }
+  .participants-toggle .p-chevron {
+    width: 18px; height: 18px; color: var(--text-muted);
+    margin-left: auto; flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .participants-toggle[aria-expanded="true"] .p-chevron { transform: rotate(180deg); }
+  .participants-body { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+  .participants-body.open { max-height: 300px; }
+  .participant-list { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; }
+  .participant-tag {
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    background: white; border: 1px solid rgba(79,124,255,0.1);
+    border-radius: 100px; padding: 6px 14px;
+    box-shadow: 0 1px 4px rgba(100,120,180,0.06); transition: all 0.2s;
+  }
+  .participant-tag:hover { background: var(--accent-light); border-color: rgba(79,124,255,0.2); }
+  .participant-tag .role { color: var(--text-muted); font-weight: 400; margin-left: 3px; }
+  .section { margin-bottom: 10px; }
+  .section-toggle {
+    width: 100%; display: flex; align-items: center; gap: 14px;
+    background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-radius: var(--radius);
+    padding: 14px 16px; cursor: pointer; transition: all 0.2s;
+    text-align: left; color: var(--text-primary);
+    font-family: inherit; outline: none; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 16px var(--glass-shadow), 0 0 0 1px rgba(255,255,255,0.5) inset;
+  }
+  .section-toggle:hover { background: var(--glass-hover); box-shadow: 0 4px 24px rgba(100,120,180,0.12), 0 0 0 1px rgba(255,255,255,0.6) inset; }
+  .section-toggle[aria-expanded="true"] { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: transparent; }
+  .section-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 16px;
+  }
+  .section-icon.blue { background: var(--accent-light); }
+  .section-icon.orange { background: var(--warn-light); }
+  .section-icon.green { background: var(--success-light); }
+  .section-icon.purple { background: var(--idea-light); }
+  .section-icon.pink { background: var(--mind-light); }
+  .section-label { flex: 1; min-width: 0; }
+  .section-label .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; color: var(--text-muted); letter-spacing: 1.2px; display: block; margin-bottom: 3px; }
+  .section-label .title { font-size: 14.5px; font-weight: 700; letter-spacing: -0.2px; display: block; }
+  .section-label .brief { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; display: block; }
+  .chevron { width: 20px; height: 20px; flex-shrink: 0; color: var(--text-muted); transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+  .section-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+  .section-body {
+    background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden; max-height: 0;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 24px var(--glass-shadow);
+  }
+  .section-body.open { max-height: 8000px; }
+  .section-body-inner { padding: 2px 16px 18px; }
+  .item { border-bottom: 1px solid rgba(79,124,255,0.06); padding: 14px 0; }
+  .item:last-child { border-bottom: none; }
+  .item-toggle {
+    display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+    width: 100%; background: none; border: none; color: var(--text-primary);
+    font-family: inherit; text-align: left; padding: 0; outline: none; -webkit-tap-highlight-color: transparent;
+  }
+  .item-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-top: 7px; flex-shrink: 0; }
+  .item-dot.orange { background: var(--warn); }
+  .item-dot.green { background: var(--success); }
+  .item-dot.purple { background: var(--idea); }
+  .item-dot.pink { background: var(--mind); }
+  .item-content { flex: 1; min-width: 0; }
+  .item-summary { font-size: 13.5px; font-weight: 600; line-height: 1.45; }
+  .item-speaker { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .item-expand-icon { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; margin-top: 3px; transition: transform 0.25s; }
+  .item-toggle[aria-expanded="true"] .item-expand-icon { transform: rotate(180deg); }
+  .item-detail { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+  .item-detail.open { max-height: 2000px; }
+  .item-detail-inner {
+    padding: 10px 0 4px 17px; font-size: 13px;
+    color: var(--text-secondary); line-height: 1.65;
+    border-left: 2.5px solid var(--accent-light); margin-left: 3px;
+  }
+  .item-detail-inner p { margin-bottom: 8px; }
+  .item-detail-inner p:last-child { margin-bottom: 0; }
+  .item-detail-inner strong { color: var(--text-primary); font-weight: 600; }
+  .task-card {
+    background: white; border: 1px solid rgba(79,124,255,0.08);
+    border-radius: var(--radius-sm); padding: 14px 14px; margin-bottom: 10px;
+    box-shadow: 0 1px 8px rgba(100,120,180,0.05); transition: box-shadow 0.2s;
+  }
+  .task-card:hover { box-shadow: 0 3px 16px rgba(100,120,180,0.1); }
+  .task-card:last-child { margin-bottom: 0; }
+  .task-card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .task-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 6px;
+  }
+  .task-badge.decision { background: var(--success-light); color: var(--success); }
+  .task-badge.action { background: var(--accent-light); color: var(--accent); }
+  .task-badge.next { background: var(--warn-light); color: var(--warn); }
+  .task-badge.reading { background: var(--mind-light); color: var(--mind); }
+  .task-owner { font-size: 11px; color: var(--text-muted); margin-left: auto; font-weight: 500; }
+  .task-text { font-size: 13.5px; font-weight: 600; line-height: 1.5; }
+  .task-detail { font-size: 12.5px; color: var(--text-secondary); margin-top: 6px; line-height: 1.55; }
+  .footer { margin-top: 28px; text-align: center; font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; }
+  @media (min-width: 640px) {
+    .container { padding: 32px 20px 80px; }
+    .header { padding: 28px 26px; }
+    .header h1 { font-size: 23px; }
+    .meta-row { gap: 10px; }
+    .section-toggle { padding: 18px 22px; gap: 16px; }
+    .section-body-inner { padding: 6px 22px 24px; }
+    .section-label .title { font-size: 15px; }
+    .section-icon { width: 38px; height: 38px; }
+    .task-card { padding: 18px 20px; }
+  }
+  @media (min-width: 1024px) {
+    .container { max-width: 780px; padding: 48px 32px 100px; }
+    .header { padding: 36px 32px; border-radius: 20px; }
+    .header h1 { font-size: 26px; }
+    .section-toggle { padding: 20px 26px; border-radius: 20px; }
+    .section-toggle[aria-expanded="true"] { border-radius: 20px 20px 0 0; }
+    .section-body { border-radius: 0 0 20px 20px; }
+    .section-body-inner { padding: 8px 28px 28px; }
+    .section-label .title { font-size: 16px; }
+    .item-summary { font-size: 14px; }
+    .item-detail-inner { font-size: 13.5px; }
+    .task-text { font-size: 14px; }
+    .task-detail { font-size: 13px; }
+  }
+  @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .header, .section { animation: fadeSlideIn 0.5s ease both; }
+  .section:nth-child(1) { animation-delay: 0.08s; }
+  .section:nth-child(2) { animation-delay: 0.14s; }
+  .section:nth-child(3) { animation-delay: 0.2s; }
+  .section:nth-child(4) { animation-delay: 0.26s; }
+  .section:nth-child(5) { animation-delay: 0.32s; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="header-label">Менторство · Лекция №1</div>
+    <h1>LifeOS — Введение в методологии: внимание, mind-менеджмент, гусеница познания</h1>
+    <div class="meta-row">
+      <span class="meta-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>15 марта 2025</span>
+      <span class="meta-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>86 мин</span>
+      <span class="meta-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>Zoom</span>
+      <span class="meta-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Серия: LifeOS для Privilegija</span>
+    </div>
+    <button class="participants-toggle" aria-expanded="false" onclick="toggleParticipants(this)">
+      <div class="p-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div>
+      <span class="p-label">Участники</span>
+      <span class="p-count">6</span>
+      <svg class="p-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="participants-body">
+      <div class="participant-list">
+        <span class="participant-tag">Александр Погорелый <span class="role">— ментор</span></span>
+        <span class="participant-tag">Данила Соловьёв <span class="role">— конспект</span></span>
+        <span class="participant-tag">Сергей Мадияров</span>
+        <span class="participant-tag">Влада</span>
+        <span class="participant-tag">Виолетта Мессауди</span>
+        <span class="participant-tag">Анастасия Погорелая</span>
+      </div>
+    </div>
+  </div>
+  <div id="sections">
+    <div class="section">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection(this)">
+        <div class="section-icon blue">📋</div>
+        <div class="section-label"><span class="num">01</span><span class="title">Тема и контекст</span><span class="brief">Введение в систему методологий Next Level Club</span></div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="section-body"><div class="section-body-inner">
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot"></div><div class="item-content"><div class="item-summary">Первая лекция менторства — вводная по всем методологиям</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Цель — дать команде понимание всей системы методологий прежде чем углубляться в LifeOS. История создания с 2008 года, взаимосвязь и ключевые концепции.</p><p>Конечная цель серии: пройти все методологии и создать курс онлайн-образования + софт.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot"></div><div class="item-content"><div class="item-summary">5 методологий Next Level Club</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p><strong>DataOS</strong> (2008) — работа с информацией. Библиотека знаний. Основа всех остальных.</p><p><strong>MindOS</strong> (2018) — максимальное использование мозга. Mind-менеджмент, полисистемность.</p><p><strong>SoftOS</strong> (2018) — устройства, софт, IT-навыки, автоматизация.</p><p><strong>LifeOS</strong> (2011) — личностный рост с жизненным балансом. Тело, разум, сердце, сознание.</p><p><strong>WorkOS</strong> (2008) — управление бизнесом. План-факт-анализ, стратегия + тактика + операционка.</p></div></div></div>
+      </div></div>
+    </div>
+    <div class="section">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection(this)">
+        <div class="section-icon pink">🧠</div>
+        <div class="section-label"><span class="num">02</span><span class="title">Ключевые концепции</span><span class="brief">Треугольник внимания, mind-менеджмент, гусеница познания</span></div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="section-body"><div class="section-body-inner">
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot pink"></div><div class="item-content"><div class="item-summary">Треугольник внимания — главная аксиома</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p><strong>Аксиома:</strong> способность фокусировать внимание нужное количество времени с нужным количеством энергии определяет абсолютно всё.</p><p><strong>Внимание</strong> (вершина) — работа с информацией.</p><p><strong>Время</strong> (основание) — все виды менеджмента: тайм-, проект-, HR, AI, SoftOS.</p><p><strong>Энергия</strong> — физическая, умственная, психическая, эмоциональная, духовная. Забота о себе.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot pink"></div><div class="item-content"><div class="item-summary">Наконечник: понимание → ясность → фокус</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p><strong>Понимание</strong> — глубинное знание. Самый важный компонент.</p><p><strong>Ясность</strong> — доступ к информации. Mind-менеджмент.</p><p><strong>Фокус</strong> — чистый мозг, концентрация.</p><p><strong>Аналогия «Криптун»:</strong> без понимания при максимальном фокусе — провал. Эксперт без мотивации — всё равно нажимает кнопку. Три вместе = геометрическая прогрессия.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot pink"></div><div class="item-content"><div class="item-summary">Mind-менеджмент — «единственный залог успеха»</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Mind maps — фиксируют, структурируют и связывают знания. Мозг физически наращивает нейронные связи.</p><p><strong>Практика:</strong> мысли → заметки → mind-map → древо знаний. Следующий этап — графы (3D/4D). «Графы — x10. С AI — x100».</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot pink"></div><div class="item-content"><div class="item-summary">Гусеница познания → Бабочка трансформации</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p><strong>1. Узнай</strong> — отбирай контент, формируй «круг незнаний».</p><p><strong>2. Пойми</strong> — запоминай, обучай других, критический анализ.</p><p><strong>3. Примени</strong> — навыки, интеграция, рефлексия.</p><p><strong>Формула:</strong> узнай → пойми → примени → привычка → ритуал → качество → новый ты.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot pink"></div><div class="item-content"><div class="item-summary">Главный враг внимания — информация</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Информация и разрушает, и питает внимание. Дофамин, тревожность, overthinking.</p><p><strong>Решение:</strong> «Отбирай контент» — фильтрация, качество источников, сегментация.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot pink"></div><div class="item-content"><div class="item-summary">«Затачивай пилу» — жить лучшую жизнь</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Спать, есть вкусное, обнимать близких, путешествовать, читать. Быть в балансе.</p></div></div></div>
+      </div></div>
+    </div>
+    <div class="section">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection(this)">
+        <div class="section-icon orange">💡</div>
+        <div class="section-label"><span class="num">03</span><span class="title">Ключевые тезисы</span><span class="brief">Аксиомы, принципы, аналогии</span></div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="section-body"><div class="section-body-inner">
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot orange"></div><div class="item-content"><div class="item-summary">Одно слово — «Внимание»</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Подтверждено нейробиологией, когнитивистикой, психологией, философией. Универсально для всех.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot orange"></div><div class="item-content"><div class="item-summary">Аналогии — «скрипты» (кнопки для мозга)</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Аналогия = промт, skill. Название = кнопка. «Шарль Деголь», «Гусеница познания» — одно слово разворачивает концепцию.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot orange"></div><div class="item-content"><div class="item-summary">Визуал / аудиал / кинестетик — миф</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>400 студентов: побеждает объединение всех каналов. Mind-менеджмент = визуальный + тактильный + проговаривание.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot orange"></div><div class="item-content"><div class="item-summary">Дисциплина — делать только то, что хочешь</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>LifeOS учит хотеть правильные вещи. Жить максимально наполненную жизнь.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot orange"></div><div class="item-content"><div class="item-summary">Логика — мать всех наук</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Философия → логика → все науки. Изучайте и применяйте логику.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot orange"></div><div class="item-content"><div class="item-summary">Древо знаний — личная система</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>Корни — исследования. Стволы — направления. Ветки — источники. Читать → заметки → карта → древо.</p></div></div></div>
+      </div></div>
+    </div>
+    <div class="section">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection(this)">
+        <div class="section-icon purple">❓</div>
+        <div class="section-label"><span class="num">04</span><span class="title">Вопросы участников</span><span class="brief">Баланс, обратная связь</span></div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="section-body"><div class="section-body-inner">
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot purple"></div><div class="item-content"><div class="item-summary">Виолетта: Как совмещать фокус с балансом?</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p><strong>Ответ:</strong> следующая лекция — аналогия «Полёт на параплане». Ловить потоки, подниматься и спускаться.</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot purple"></div><div class="item-content"><div class="item-summary">Данила: Ценность — обратить внимание на очевидное</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>«Верно, но намного больше ещё. Вы узнали 0.001%».</p></div></div></div>
+        <div class="item"><button class="item-toggle" aria-expanded="false" onclick="toggleItem(this)"><div class="item-dot purple"></div><div class="item-content"><div class="item-summary">Сергей: За месяц — сильный левелап</div></div><svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></button><div class="item-detail"><div class="item-detail-inner"><p>«Методика работает, у неё нет границ в перспективах развития».</p></div></div></div>
+      </div></div>
+    </div>
+    <div class="section">
+      <button class="section-toggle" aria-expanded="false" onclick="toggleSection(this)">
+        <div class="section-icon green">✅</div>
+        <div class="section-label"><span class="num">05</span><span class="title">Задачи и следующие шаги</span><span class="brief">Дашборд, конспект, книги, практика</span></div>
+        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="section-body"><div class="section-body-inner">
+        <div class="task-card"><div class="task-card-header"><span class="task-badge action">Задача</span><span class="task-owner">Данила</span></div><div class="task-text">Создать дашборд менторства</div><div class="task-detail">Интерактивный протокол: лекция, тема, конспект, концепции. Обсудить структуру с Александром.</div></div>
+        <div class="task-card"><div class="task-card-header"><span class="task-badge action">Задача</span><span class="task-owner">Данила</span></div><div class="task-text">Написать раздел «Введение» для LifeOS</div><div class="task-detail">На базе лекции. Скормить запись Claude, допилить вместе.</div></div>
+        <div class="task-card"><div class="task-card-header"><span class="task-badge action">Задача</span><span class="task-owner">Все</span></div><div class="task-text">Оспорить каждое слово лекции</div><div class="task-detail">В голове, затем попробовать доказать неправоту через логику.</div></div>
+        <div class="task-card"><div class="task-card-header"><span class="task-badge action">Задача</span><span class="task-owner">Все</span></div><div class="task-text">Делиться знаниями с другими</div><div class="task-detail">Обучая — закрепляешь. Пересказывайте концепции.</div></div>
+        <div class="task-card"><div class="task-card-header"><span class="task-badge reading">Книги</span><span class="task-owner">Все</span></div><div class="task-text">Рекомендованное чтение</div><div class="task-detail">«Думай быстро, решай медленно» (Канеман). «Биология добра и зла» (Сапольский). «Мой продуктивный мозг». Читать → заметки → mind-map → древо.</div></div>
+        <div class="task-card"><div class="task-card-header"><span class="task-badge next">Следующая лекция</span><span class="task-owner">Все</span></div><div class="task-text">LifeOS — баланс сфер жизни</div><div class="task-detail">Аналогия «Полёт на параплане». Углубление: тело, разум, сердце, сознание; роли, принципы, ценности, миссия.</div></div>
+      </div></div>
+    </div>
+  </div>
+  <div class="footer">LifeOS · Менторство для команды Privilegija · Протокол на основе транскрипции</div>
+</div>
+<script>
+  function toggleParticipants(btn) { const e = btn.getAttribute('aria-expanded') === 'true'; btn.setAttribute('aria-expanded', !e); btn.nextElementSibling.classList.toggle('open', !e); }
+  function toggleSection(btn) { const e = btn.getAttribute('aria-expanded') === 'true'; btn.setAttribute('aria-expanded', !e); btn.nextElementSibling.classList.toggle('open', !e); }
+  function toggleItem(btn) { const e = btn.getAttribute('aria-expanded') === 'true'; btn.setAttribute('aria-expanded', !e); btn.nextElementSibling.classList.toggle('open', !e); }
+</script>
+</body>
+</html>
