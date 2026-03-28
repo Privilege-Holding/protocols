@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NLC · AI-платформа с Андрием — 27 марта 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2f9;
+    --glass-bg: rgba(255,255,255,0.72);
+    --glass-border: rgba(255,255,255,0.85);
+    --glass-shadow: rgba(100,120,180,0.08);
+    --glass-hover: rgba(255,255,255,0.88);
+    --text-primary: #1a2138;
+    --text-secondary: #4a5578;
+    --text-muted: #8892ab;
+    --accent: #4f7cff;
+    --accent-light: #e8eeff;
+    --accent-dim: rgba(79,124,255,0.1);
+    --warn: #f5944e;
+    --warn-light: #fff3e8;
+    --success: #2dba8e;
+    --success-light: #e5f8f2;
+    --idea: #a87bff;
+    --idea-light: #f2ecff;
+    --mind: #e85d9c;
+    --mind-light: #fde8f2;
+    --radius: 16px;
+    --radius-sm: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    content: ''; position: fixed; top: -30%; left: -20%;
+    width: 70vw; height: 70vw;
+    background: radial-gradient(circle, rgba(79,124,255,0.12) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; bottom: -25%; right: -15%;
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, rgba(168,123,255,0.10) 0%, transparent 65%);
+    pointer-events: none; z-index: 0;
+  }
+  .container {
+    position: relative; z-index: 1;
+    max-width: 720px; margin: 0 auto;
+    padding: 16px 12px 48px;
+  }
+  @media (min-width: 640px) { .container { padding: 32px 20px 80px; } }
+  @media (min-width: 1024px) { .container { max-width: 780px; padding: 48px 32px 100px; } }
+
+  /* NLC LOGO */
+  .nlc-logo {
+    display: inline-grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+    background: #e4e9f0;
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 4px 4px 10px #b8bec7, -4px -4px 10px #ffffff;
+    margin-bottom: 18px;
+  }
+  .nlc-tile {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: #e4e9f0;
+    box-shadow: inset 2px 2px 5px #b8bec7, inset -2px -2px 5px #ffffff;
+  }
+  .nlc-tile svg { width: 18px; height: 18px; }
+
+  /* HEADER */
+  .header {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: 20px 16px; margin-bottom: 10px;
+    position: relative;
+    box-shadow: 0 2px 24px var(--glass-shadow), 0 0 0 1px rgba(255,255,255,0.5) inset;
+    animation: fadeSlideIn 0.5s ease both;
+  }
+  .header::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #4f7cff, #a87bff, #e85d9c);
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .header-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 19px; font-weight: 700;
+    line-height: 1.3; margin-bottom: 10px; letter-spacing: -0.3px;
+  }
+  @media (min-width: 640px) { .header h1 { font-size: 23px; } }
+  @media (min-width: 1024px) { .header h1 { font-size: 26px; } }
+  .header-summary {
+    font-size: 13px; color: var(--text-secondary);
+    line-height: 1.65; margin-bottom: 14px;
+    padding: 10px 14px;
+    background: var(--accent-dim);
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--accent);
+  }
+  .meta-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .meta-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    background: var(--accent-light);
+    border: 1px solid rgba(79,124,255,0.12);
+    border-radius: 100px; padding: 5px 12px;
+  }
+  .meta-chip svg { width: 12px; height: 12px; opacity: 0.6; flex-shrink: 0; color: var(--accent); }
+
+  /* PARTICIPANTS */
+  .participants-toggle {
+    display: flex; align-items: center; gap: 8px;
+    cursor: pointer; background: none; border: none; padding: 0;
+    margin-top: 16px; color: var(--text-primary);
+    font-family: inherit; outline: none; -webkit-tap-highlight-color: transparent;
+    width: 100%; text-align: left;
+  }
+  .participants-toggle .p-icon {
+    width: 30px; height: 30px; border-radius: 8px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .participants-toggle .p-icon svg { width: 15px; height: 15px; color: var(--accent); }
+  .participants-toggle .p-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+  .participants-toggle .p-count {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 600;
+    color: var(--accent); background: var(--accent-light); border-radius: 6px; padding: 2px 8px;
+  }
+  .participants-toggle .p-chevron {
+    width: 18px; height: 18px; color: var(--text-muted);
+    margin-left: auto; flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+  }
+  .participants-toggle[aria-expanded="true"] .p-chevron { transform: rotate(180deg); }
+  .participants-body { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1); }
+  .participants-body.open { max-height: 400px; }
+  .participant-list { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; }
+  .participant-tag {
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    background: white; border: 1px solid rgba(79,124,255,0.1);
+    border-radius: 100px; padding: 5px 12px;
+    box-shadow: 0 1px 4px rgba(100,120,180,0.06);
+  }
+  .participant-tag .role { color: var(--text-muted); font-weight: 400; margin-left: 3px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 10px; animation: fadeSlideIn 0.5s ease both; }
+  .section:nth-child(1) { animation-delay: 0.08s; }
+  .section:nth-child(2) { animation-delay: 0.14s; }
+  .section:nth-child(3) { animation-delay: 0.20s; }
+  .section:nth-child(4) { animation-delay: 0.26s; }
+  .section:nth-child(5) { animation-delay: 0.32s; }
+  .section-toggle {
+    width: 100%; display: flex; align-items: center; gap: 14px;
+    background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-radius: var(--radius);
+    padding: 14px 16px; cursor: pointer; transition: all 0.2s;
+    text-align: left; color: var(--text-primary);
+    font-family: inherit; outline: none; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 16px var(--glass-shadow), 0 0 0 1px rgba(255,255,255,0.5) inset;
+  }
+  .section-toggle:hover { background: var(--glass-hover); }
+  .section-toggle[aria-expanded="true"] { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: transparent; }
+  .section-icon {
+    width: 34px; height: 34px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .section-icon svg { width: 16px; height: 16px; }
+  .section-icon.blue { background: var(--accent-light); color: var(--accent); }
+  .section-icon.orange { background: var(--warn-light); color: var(--warn); }
+  .section-icon.green { background: var(--success-light); color: var(--success); }
+  .section-icon.purple { background: var(--idea-light); color: var(--idea); }
+  .section-icon.pink { background: var(--mind-light); color: var(--mind); }
+  .section-label { flex: 1; min-width: 0; }
+  .section-label .num { font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 500; color: var(--text-muted); letter-spacing: 1.2px; display: block; margin-bottom: 2px; }
+  .section-label .title { font-size: 14.5px; font-weight: 700; letter-spacing: -0.2px; display: block; }
+  .section-label .brief { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.4; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chevron { width: 20px; height: 20px; flex-shrink: 0; color: var(--text-muted); transition: transform 0.3s cubic-bezier(0.4,0,0.2,1); }
+  .section-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+  .section-body {
+    background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden; max-height: 0;
+    transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 4px 24px var(--glass-shadow);
+  }
+  .section-body.open { max-height: 9000px; }
+  .section-body-inner { padding: 4px 16px 18px; }
+  .discussion-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text-muted);
+    padding: 12px 0 8px; display: block;
+    border-bottom: 1px solid rgba(79,124,255,0.08);
+    margin-bottom: 12px;
+  }
+
+  /* ITEMS */
+  .item { border-bottom: 1px solid rgba(79,124,255,0.06); padding: 13px 0; }
+  .item:last-child { border-bottom: none; }
+  .item-toggle {
+    display: flex; align-items: flex-start; gap: 10px; cursor: pointer;
+    width: 100%; background: none; border: none; color: var(--text-primary);
+    font-family: inherit; text-align: left; padding: 0; outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .item-dot { width: 7px; height: 7px; border-radius: 50%; margin-top: 7px; flex-shrink: 0; }
+  .item-dot.blue { background: var(--accent); }
+  .item-dot.orange { background: var(--warn); }
+  .item-dot.green { background: var(--success); }
+  .item-dot.purple { background: var(--idea); }
+  .item-dot.pink { background: var(--mind); }
+  .item-content { flex: 1; min-width: 0; }
+  .item-summary { font-size: 13.5px; font-weight: 600; line-height: 1.45; }
+  .item-expand-icon { width: 16px; height: 16px; color: var(--text-muted); flex-shrink: 0; margin-top: 3px; transition: transform 0.25s; }
+  .item-toggle[aria-expanded="true"] .item-expand-icon { transform: rotate(180deg); }
+  .item-detail { max-height: 0; overflow: hidden; transition: max-height 0.35s cubic-bezier(0.4,0,0.2,1); }
+  .item-detail.open { max-height: 3000px; }
+  .item-detail-inner {
+    padding: 10px 0 4px 17px; font-size: 13px;
+    color: var(--text-secondary); line-height: 1.65;
+    border-left: 2.5px solid var(--accent-light); margin-left: 3px;
+  }
+  .item-detail-inner p { margin-bottom: 8px; }
+  .item-detail-inner p:last-child { margin-bottom: 0; }
+  .item-detail-inner strong { color: var(--text-primary); font-weight: 600; }
+  .item-detail-inner ul { padding-left: 18px; }
+  .item-detail-inner li { margin-bottom: 4px; }
+
+  /* DECISION BADGE */
+  .decision-pill {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: 1.2px;
+    text-transform: uppercase; padding: 2px 8px;
+    border-radius: 5px; margin-bottom: 6px;
+  }
+  .decision-pill.decision { background: var(--success-light); color: var(--success); }
+  .decision-pill.question { background: var(--warn-light); color: var(--warn); }
+
+  /* FATHOM LINK */
+  .fathom-link-block {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 10px; padding: 7px 14px;
+    background: rgba(79,124,255,0.06); border: 1px solid rgba(79,124,255,0.14);
+    border-radius: 100px; font-size: 12px; font-weight: 500;
+    color: var(--accent); text-decoration: none;
+    transition: background 0.2s;
+  }
+  .fathom-link-block:hover { background: rgba(79,124,255,0.12); }
+  .fathom-link-block svg { width: 13px; height: 13px; }
+
+  /* TASKS */
+  .tasks-section { margin-bottom: 10px; animation: fadeSlideIn 0.5s 0.38s ease both; }
+  .tasks-toggle {
+    width: 100%; display: flex; align-items: center; gap: 14px;
+    background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-radius: var(--radius);
+    padding: 14px 16px; cursor: pointer; transition: all 0.2s;
+    text-align: left; color: var(--text-primary);
+    font-family: inherit; outline: none; -webkit-tap-highlight-color: transparent;
+    box-shadow: 0 2px 16px var(--glass-shadow), 0 0 0 1px rgba(255,255,255,0.5) inset;
+  }
+  .tasks-toggle:hover { background: var(--glass-hover); }
+  .tasks-toggle[aria-expanded="true"] { border-radius: var(--radius) var(--radius) 0 0; border-bottom-color: transparent; }
+  .tasks-toggle[aria-expanded="true"] .chevron { transform: rotate(180deg); }
+  .tasks-body {
+    background: var(--glass-bg); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border); border-top: none;
+    border-radius: 0 0 var(--radius) var(--radius);
+    overflow: hidden; max-height: 0;
+    transition: max-height 0.45s cubic-bezier(0.4,0,0.2,1), padding 0.3s;
+    box-shadow: 0 4px 24px var(--glass-shadow);
+    padding: 0 16px;
+  }
+  .tasks-body.open { max-height: 9000px; padding: 16px; }
+  .owner-group { margin-bottom: 20px; }
+  .owner-group:last-child { margin-bottom: 0; }
+  .owner-group-title {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    margin-bottom: 10px; padding-bottom: 6px;
+    border-bottom: 1px solid rgba(79,124,255,0.08);
+  }
+  .owner-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .task-list { list-style: none; padding: 0; margin: 0; }
+  .task-list li {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 9px 0; border-bottom: 1px solid rgba(79,124,255,0.06);
+  }
+  .task-list li:last-child { border-bottom: none; }
+  .task-list-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 8px; flex-shrink: 0; }
+  .task-list-content { flex: 1; min-width: 0; }
+  .task-list-title { font-size: 13.5px; font-weight: 600; line-height: 1.4; color: var(--text-primary); }
+  .task-list-note { font-size: 12px; color: var(--text-muted); margin-top: 3px; line-height: 1.45; }
+  .task-list-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px; font-weight: 600; letter-spacing: 1px;
+    text-transform: uppercase; padding: 2px 7px;
+    border-radius: 5px; flex-shrink: 0; margin-top: 3px;
+    white-space: nowrap;
+  }
+  .task-list-badge.action { background: var(--success-light); color: var(--success); }
+  .task-list-badge.deadline { background: var(--warn-light); color: var(--warn); }
+
+  /* FOOTER */
+  .footer {
+    margin-top: 24px; padding-top: 18px;
+    border-top: 1px solid rgba(79,124,255,0.08);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    animation: fadeSlideIn 0.5s 0.5s ease both;
+  }
+  .footer-left { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .footer-recording {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 7px 14px;
+    background: var(--glass-bg); border: 1px solid var(--glass-border);
+    border-radius: 100px; font-size: 12px; font-weight: 500;
+    color: var(--text-secondary); text-decoration: none;
+    box-shadow: 0 2px 10px var(--glass-shadow);
+    transition: background 0.2s;
+  }
+  .footer-recording:hover { background: var(--glass-hover); }
+  .footer-recording svg { width: 13px; height: 13px; color: var(--accent); }
+  .footer-gen {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--text-muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="nlc-logo">
+      <div class="nlc-tile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#4f7cff" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
+      <div class="nlc-tile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#a87bff" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/>
+        </svg>
+      </div>
+      <div class="nlc-tile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#2dba8e" stroke-width="2" stroke-linecap="round">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div class="nlc-tile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#e85d9c" stroke-width="2" stroke-linecap="round">
+          <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
+        </svg>
+      </div>
+    </div>
+    <div class="header-label">NLC · Встреча с разработчиком</div>
+    <h1>AI-платформа: офис, агенты, Telegram-інтеграція</h1>
+    <div class="header-summary">
+      Обзор архитектуры AI-офиса NLC. Классификация агентов по типам. Интеграция Telegram с AI-платформой и автоматизация рабочих процессов. Обсуждение перехода Андрия на full-time.
+    </div>
+    <div class="meta-row">
+      <div class="meta-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        27 марта 2026
+      </div>
+      <div class="meta-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        23:16 – 00:01 · ~45 мин
+      </div>
+      <div class="meta-chip">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        Zoom
+      </div>
+    </div>
+    <button class="participants-toggle" aria-expanded="false" id="pts-toggle">
+      <div class="p-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <span class="p-label">Участники</span>
+      <span class="p-count">2</span>
+      <svg class="p-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="participants-body" id="pts-body">
+      <div class="participant-list">
+        <span class="participant-tag">Александр Погорелый <span class="role">Владелец · Привилегия / NLC</span></span>
+        <span class="participant-tag">Андрий <span class="role">Разработчик · AI-платформа</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: AI-ОФИС -->
+  <div class="section">
+    <button class="section-toggle" aria-expanded="false" id="s1-toggle">
+      <div class="section-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      </div>
+      <div class="section-label">
+        <span class="num">01 · 0:10</span>
+        <span class="title">AI-офис и база знаний</span>
+        <span class="brief">Структура, иерархия инструкций, непрерывное обновление</span>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="section-body" id="s1-body">
+      <div class="section-body-inner">
+        <span class="discussion-label">Обсуждение</span>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i1-1-toggle">
+            <div class="item-dot blue"></div>
+            <div class="item-content">
+              <div class="item-summary">Структура AI-офиса</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i1-1-detail">
+            <div class="item-detail-inner">
+              <div class="decision-pill decision">Решение</div>
+              <p>Утверждена трёхуровневая структура AI-офиса: <strong>AI-новостная лента</strong> → <strong>AI-ассистент</strong> → <strong>База знаний</strong>.</p>
+              <p>Каждая инструкция имеет иерархическую структуру: краткое описание → пошаговые инструкции → чек-лист. База обновляется непрерывно по мере развития платформы.</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i1-2-toggle">
+            <div class="item-dot blue"></div>
+            <div class="item-content">
+              <div class="item-summary">Принципы базы знаний</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i1-2-detail">
+            <div class="item-detail-inner">
+              <p>Инструкции живые — обновляются сразу при изменении процессов. AI всегда работает с актуальной версией базы, не с устаревшими документами.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: ТИПЫ АГЕНТОВ -->
+  <div class="section">
+    <button class="section-toggle" aria-expanded="false" id="s2-toggle">
+      <div class="section-icon purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.93 4.93l2.12 2.12M16.95 16.95l2.12 2.12M4.93 19.07l2.12-2.12M16.95 7.05l2.12-2.12"/></svg>
+      </div>
+      <div class="section-label">
+        <span class="num">02 · 1:30</span>
+        <span class="title">Типы AI-агентов</span>
+        <span class="brief">Функции, консультанты, роли, комплексные агенты</span>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="section-body" id="s2-body">
+      <div class="section-body-inner">
+        <span class="discussion-label">Классификация</span>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i2-1-toggle">
+            <div class="item-dot purple"></div>
+            <div class="item-content">
+              <div class="item-summary">Агент-функция</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i2-1-detail">
+            <div class="item-detail-inner">
+              <p>Выполняет конкретные операционные задачи. Пример: запланировать Zoom-встречу, отправить сообщение, создать документ.</p>
+              <p>Атомарный кубик — одна задача, один агент.</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i2-2-toggle">
+            <div class="item-dot purple"></div>
+            <div class="item-content">
+              <div class="item-summary">AI-консультант</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i2-2-detail">
+            <div class="item-detail-inner">
+              <p>Поглощает знания базы и даёт советы по best practices. Аналитик: что работает, что нет, как оптимизировать процесс.</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i2-3-toggle">
+            <div class="item-dot purple"></div>
+            <div class="item-content">
+              <div class="item-summary">AI-роль</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i2-3-detail">
+            <div class="item-detail-inner">
+              <p>Выполняет функции конкретной должности: проджект-менеджер, маркетолог, копирайтер, аналитик. Имеет полный контекст роли и отвечает соответствующим образом.</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i2-4-toggle">
+            <div class="item-dot purple"></div>
+            <div class="item-content">
+              <div class="item-summary">Комплексный агент</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i2-4-detail">
+            <div class="item-detail-inner">
+              <div class="decision-pill decision">Решение</div>
+              <p>Комбинирует несколько возможностей в одном агенте. Например: AI-протоколист = агент-функция (создать файл) + AI-роль (секретарь) + AI-консультант (структура протокола).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: TELEGRAM -->
+  <div class="section">
+    <button class="section-toggle" aria-expanded="false" id="s3-toggle">
+      <div class="section-icon blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      </div>
+      <div class="section-label">
+        <span class="num">03 · 4:03</span>
+        <span class="title">Telegram-интеграция</span>
+        <span class="brief">Групповые / личные чаты, теги, Markdown-папки</span>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="section-body" id="s3-body">
+      <div class="section-body-inner">
+        <span class="discussion-label">Реализация</span>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i3-1-toggle">
+            <div class="item-dot blue"></div>
+            <div class="item-content">
+              <div class="item-summary">Поведение бота в разных типах чатов</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i3-1-detail">
+            <div class="item-detail-inner">
+              <div class="decision-pill decision">Решение</div>
+              <p>В <strong>групповых чатах</strong> — реагирует только при теге @bot или ответе на сообщение бота. В остальных случаях работает в фоне (трекинг хештегов, сохранение ссылок).</p>
+              <p>В <strong>личных сообщениях</strong> — отвечает на каждое сообщение без тега.</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i3-2-toggle">
+            <div class="item-dot blue"></div>
+            <div class="item-content">
+              <div class="item-summary">Распознавание участников и контекст</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i3-2-detail">
+            <div class="item-detail-inner">
+              <p>Бот распознаёт и тегает участников разговора. Автоматически создаёт папки и Markdown-файлы под каждый разговор и контекст — структурированное хранение истории коммуникаций.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: АВТОМАТИЗАЦИЯ -->
+  <div class="section">
+    <button class="section-toggle" aria-expanded="false" id="s4-toggle">
+      <div class="section-icon orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="section-label">
+        <span class="num">04 · 11:49</span>
+        <span class="title">Автоматизация воркфлоу</span>
+        <span class="brief">Протоколы, поиск файлов, деплой страниц</span>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="section-body" id="s4-body">
+      <div class="section-body-inner">
+        <span class="discussion-label">Рабочие сценарии</span>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i4-1-toggle">
+            <div class="item-dot orange"></div>
+            <div class="item-content">
+              <div class="item-summary">Автоматическая генерация протоколов</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i4-1-detail">
+            <div class="item-detail-inner">
+              <p>После каждого Zoom-звонка — автоматически генерируется HTML-протокол на основе транскрипта Fathom. Деплой происходит как публичная веб-страница.</p>
+              <p>Именно эта встреча является примером такой автоматизации в действии.</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i4-2-toggle">
+            <div class="item-dot orange"></div>
+            <div class="item-content">
+              <div class="item-summary">Поиск файлов и прирост продуктивности</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i4-2-detail">
+            <div class="item-detail-inner">
+              <p>Поиск и получение релевантных файлов по текстовому запросу через AI. Значительный прирост продуктивности команды — рутинные операции теперь занимают секунды, а не минуты.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: ДОРОЖНАЯ КАРТА -->
+  <div class="section">
+    <button class="section-toggle" aria-expanded="false" id="s5-toggle">
+      <div class="section-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      </div>
+      <div class="section-label">
+        <span class="num">05 · 24:50</span>
+        <span class="title">Дорожная карта и сотрудничество</span>
+        <span class="brief">AI-маркетинг, соцсети, full-time переход</span>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="section-body" id="s5-body">
+      <div class="section-body-inner">
+        <span class="discussion-label">Следующие шаги</span>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i5-1-toggle">
+            <div class="item-dot green"></div>
+            <div class="item-content">
+              <div class="item-summary">AI-маркетинг и соцсети</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i5-1-detail">
+            <div class="item-detail-inner">
+              <p>Развитие направления AI-маркетинга: автоматизация контент-плана, постинг в соцсети, аналитика аудитории. Приоритизация AI-маркетинг vs AI-офис в апреле — открытый вопрос.</p>
+            </div>
+          </div>
+        </div>
+        <div class="item">
+          <button class="item-toggle" aria-expanded="false" id="i5-2-toggle">
+            <div class="item-dot green"></div>
+            <div class="item-content">
+              <div class="item-summary">Переход Андрия на full-time</div>
+            </div>
+            <svg class="item-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="item-detail" id="i5-2-detail">
+            <div class="item-detail-inner">
+              <div class="decision-pill question">Открытый вопрос</div>
+              <p>Обсуждён возможный переход Андрия на full-time роль в команде NLC. Договорились продолжать совместную работу и развивать платформу в ближайшие недели.</p>
+              <p>Условия и формат сотрудничества — к обсуждению на следующей встрече.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASKS -->
+  <div class="tasks-section">
+    <button class="tasks-toggle" aria-expanded="true" id="tasks-toggle">
+      <div class="section-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+      </div>
+      <div class="section-label">
+        <span class="num">TASKS</span>
+        <span class="title">Задачи</span>
+        <span class="brief">4 задачи · Андрий, АЮ, совместно</span>
+      </div>
+      <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <div class="tasks-body open" id="tasks-body">
+      <!-- Андрий -->
+      <div class="owner-group">
+        <div class="owner-group-title">
+          <div class="owner-dot" style="background:#2dba8e;box-shadow:0 0 8px rgba(45,186,142,0.4);"></div>
+          Андрий
+        </div>
+        <ul class="task-list">
+          <li>
+            <div class="task-list-dot" style="background:#2dba8e;"></div>
+            <div class="task-list-content">
+              <div class="task-list-title">Изучить настройку CloudBot на VPS — инструкции и конфигурация</div>
+              <div class="task-list-note">Подготовить документ с пошаговой инструкцией для команды</div>
+            </div>
+            <span class="task-list-badge deadline">до 31.03</span>
+          </li>
+          <li>
+            <div class="task-list-dot" style="background:#2dba8e;"></div>
+            <div class="task-list-content">
+              <div class="task-list-title">Поделиться MindMap и деревом агентов</div>
+              <div class="task-list-note">Для координации разработки и выравнивания видения</div>
+            </div>
+            <span class="task-list-badge deadline">до 29.03</span>
+          </li>
+        </ul>
+      </div>
+      <!-- АЮ + Андрий -->
+      <div class="owner-group">
+        <div class="owner-group-title">
+          <div class="owner-dot" style="background:#4f7cff;box-shadow:0 0 8px rgba(79,124,255,0.4);"></div>
+          АЮ + Андрий
+        </div>
+        <ul class="task-list">
+          <li>
+            <div class="task-list-dot" style="background:#4f7cff;"></div>
+            <div class="task-list-content">
+              <div class="task-list-title">Развить AI-маркетинг и возможности работы с соцсетями</div>
+              <div class="task-list-note">Автоматизация контент-плана, постинг, аналитика аудитории</div>
+            </div>
+            <span class="task-list-badge deadline">до 07.04</span>
+          </li>
+        </ul>
+      </div>
+      <!-- АЮ -->
+      <div class="owner-group">
+        <div class="owner-group-title">
+          <div class="owner-dot" style="background:#a87bff;box-shadow:0 0 8px rgba(168,123,255,0.4);"></div>
+          АЮ
+        </div>
+        <ul class="task-list">
+          <li>
+            <div class="task-list-dot" style="background:#a87bff;"></div>
+            <div class="task-list-content">
+              <div class="task-list-title">Обсудить условия перехода Андрия на full-time роль</div>
+              <div class="task-list-note">Формат, условия, зоны ответственности</div>
+            </div>
+            <span class="task-list-badge action">Следующая встреча</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-left">
+      <a class="footer-recording" href="https://fathom.video/share/NZsB-4uSUfwHJiDi3QpPYMWxRECs8-sT" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+        Запись в Fathom
+      </a>
+    </div>
+    <div class="footer-gen">Ai Протоколист NLC · 28.03.2026</div>
+  </div>
+
+</div>
+
+<script>
+  function toggleSection(toggleId, bodyId) {
+    const toggle = document.getElementById(toggleId);
+    const body = document.getElementById(bodyId);
+    toggle.addEventListener('click', function() {
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', String(!expanded));
+      body.classList.toggle('open', !expanded);
+    });
+  }
+
+  toggleSection('pts-toggle', 'pts-body');
+  toggleSection('s1-toggle', 's1-body');
+  toggleSection('s2-toggle', 's2-body');
+  toggleSection('s3-toggle', 's3-body');
+  toggleSection('s4-toggle', 's4-body');
+  toggleSection('s5-toggle', 's5-body');
+  toggleSection('tasks-toggle', 'tasks-body');
+
+  ['i1-1','i1-2','i2-1','i2-2','i2-3','i2-4','i3-1','i3-2','i4-1','i4-2','i5-1','i5-2'].forEach(function(id) {
+    const toggle = document.getElementById(id + '-toggle');
+    const detail = document.getElementById(id + '-detail');
+    if (toggle && detail) {
+      toggle.addEventListener('click', function() {
+        const expanded = this.getAttribute('aria-expanded') === 'true';
+        this.setAttribute('aria-expanded', String(!expanded));
+        detail.classList.toggle('open', !expanded);
+      });
+    }
+  });
+</script>
+</body>
+</html>
